@@ -51,22 +51,12 @@ resource "random_string" "storage_name" {
     special = false
 }
 
-# A random string of numbers
 resource "random_string" "guessing_game" {
     length = 8
     upper = false
     lower = false
     numeric = true
     special = false
-}
-
-# A storage account to save files in
-resource "azurerm_storage_account" "storage_account" {
-  name = "storage${random_string.storage_name.result}"
-  resource_group_name = var.resource_group_name
-  location = var.location
-  account_tier = "Standard"
-  account_replication_type = "LRS"
 }
 
 # A resource to monitor your running app - Ignore
@@ -102,10 +92,21 @@ resource "azurerm_function_app" "function_app" {
     "Difficulty" = var.difficulty
   }
   
-  site_config {}
+  site_config {
+    dotnet_framework_version = "v4.0"
+  }
   storage_account_name       = azurerm_storage_account.storage_account.name
   storage_account_access_key = azurerm_storage_account.storage_account.primary_access_key
-  version                    = "4"
+  version                    = "~4"
+}
+
+# A storage account to save files in
+resource "azurerm_storage_account" "storage_account" {
+  name = "storage${random_string.storage_name.result}"
+  resource_group_name = var.resource_group_name
+  location = var.location
+  account_tier = "Standard"
+  account_replication_type = "LRS"
 }
 
 # ----------------------------------------- #
